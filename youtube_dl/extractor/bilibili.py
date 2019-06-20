@@ -113,10 +113,10 @@ class BiliBiliIE(InfoExtractor):
         webpage = self._download_webpage(url, video_id)
 
         if 'anime/' not in url:
-            cid = self._search_regex(
-                r'\bcid(?:["\']:|=)(\d+)', webpage, 'cid',
-                default=None
-            ) or compat_parse_qs(self._search_regex(
+            page_number = int(self._search_regex(r'/\?p=(\d+)$', url, 'page_number', '0'))
+            pattern = r'\bcid(?:["\']:|=)(\d+)' if page_number == 0 else r'\bcid(?:["\']:|=)(\d+),"page":%d' % page_number
+            cid = self._search_regex(pattern, webpage, 'cid',
+                    default=None) or compat_parse_qs(self._search_regex(
                 [r'EmbedPlayer\([^)]+,\s*"([^"]+)"\)',
                  r'EmbedPlayer\([^)]+,\s*\\"([^"]+)\\"\)',
                  r'<iframe[^>]+src="https://secure\.bilibili\.com/secure,([^"]+)"'],
@@ -230,11 +230,10 @@ class BiliBiliIE(InfoExtractor):
             return entries[0]
         else:
             for idx, entry in enumerate(entries):
-                entry['id'] = '%s_part%d' % (video_id, (idx + 1))
-
+                entry['id'] = '%s_part%d' % (cid, (idx + 1))
             return {
                 '_type': 'multi_video',
-                'id': video_id,
+                'id': cid,
                 'title': title,
                 'description': description,
                 'entries': entries,
