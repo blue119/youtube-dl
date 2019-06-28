@@ -203,7 +203,7 @@ class BiliBiliIE(InfoExtractor):
 
         # TODO 'view_count' requires deobfuscating Javascript
         info = {
-            'id': video_id,
+            'id': cid,
             'title': title,
             'description': description,
             'timestamp': timestamp,
